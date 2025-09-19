@@ -93,8 +93,7 @@ const App = () => {
   }
 
   const donate = async (publicKey) => {
-     try {
-      const connection = new Connection(network, opts.preflightCommitment);
+    try {
       const provider = getProvider();
       const program = new Program(idl, provider);
       await program.rpc.donate(new BN(0.2 * web3.LAMPORTS_PER_SOL), {
@@ -106,13 +105,32 @@ const App = () => {
       });
       console.log("Donated some money to: ", publicKey.toString());
       getCampaigns();
-     } catch(error) {
+    } catch (error) {
       console.error("Error donating: ", error);
-     }
+    }
   }
 
+
+  const withdraw = async (publicKey) => {
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, provider);
+      await program.rpc.withdraw(new BN(0.2 * web3.LAMPORTS_PER_SOL), {
+        accounts: {
+          campaign: publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log("Withdrew some money from: ", publicKey.toString());
+      getCampaigns();
+
+    } catch (error) {
+      console.error("Error withdrawing: ", error);
+    }
+
+  }
   const renderNotConnectedContainer = () => (
-      <button onClick={connectWallet}>Connect to Wallet</button>
+    <button onClick={connectWallet}>Connect to Wallet</button>
   )
 
   const renderConnectedContainer = () => (
@@ -132,6 +150,8 @@ const App = () => {
           <p>{campaign.name}</p>
           <p>{campaign.description}</p>
           <button onClick={() => donate(campaign.pubkey)}>Click to donate</button>
+          <button onClick={() => withdraw(campaign.pubkey)}>Click to withdraw</button>
+
         </>
       ))}
 
